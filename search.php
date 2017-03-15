@@ -53,21 +53,22 @@
             width: 80%;
         }
         table {
-            /*border: 1px solid;*/
+            border: 1px solid #e3e3e3;
             width: 100%;
-            border-collapse: collapse;
+            background-color: #e3e3e3;
+            /*border-collapse: collapse;*/
 
         }
         th,td,tr {
 
-            border: 1px solid black;
-            border-collapse: collapse;
+            border: 0.1px #e3e3e3;
+            /*border-collapse: collapse;*/
         }
         th {
-             background-color: lightgrey;
+             background-color: #f3f3f3;
         }
         td {
-            background-color: #f3f3f3;
+            background-color: #f9f9f9;
         }
     </style>
     <script type="text/javascript">
@@ -349,7 +350,11 @@ try {
 
             foreach ($search as $key) {
                 echo '<tr>';
-                $image = $key['picture']['url'];
+                if (isset($key['picture']['url'])) {
+                    $image = $key['picture']['url'];
+                } else {
+                    $image = "#";
+                }
                 $id = $key["id"];
                 $id1 = '\'' . $id . '\'';
                 echo '<td>' . '<img src=' . $image . ' width="30px" height="40px" onclick="profile(this)">' . '</td>';
@@ -359,7 +364,7 @@ try {
                     echo '<td>' . '<a href="javascript:checkDetails(' . $id1 . ')" > Details</a>' . '</td>';
                 }
                 else {
-                    if(isset($key['place'])) {
+                    if(isset($key['place']['name'])) {
                         echo '<td>' . '<p>'. $key['place']['name'] .'</p>' . '</td>';
                     }
                     else {
@@ -424,7 +429,7 @@ e, picture}},posts.limit(5)');
                         } else {
                             $urlResult1 = '\'' . $photo['picture'] . '\'';
                         }
-                        echo '<img src=' . $photo['picture'] . ' width="30px" height="40px" onclick="getHDImage(' . $urlResult1 . ')">';
+                        echo '<img src=' . $photo['picture'] . ' width="60px" height="60px" onclick="getHDImage(' . $urlResult1 . ')">';
                         echo "  ";
                     }
                 } else {
@@ -447,6 +452,7 @@ e, picture}},posts.limit(5)');
 
             echo '<div id="post" style="display: none; ">';
             echo '<table>';
+            echo '<tr><th>Message</th></tr>';
             $albumData = $search['posts'];
             foreach ($albumData as $data) {
                 if(isset($data['message'])) {
