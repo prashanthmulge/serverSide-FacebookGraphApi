@@ -178,6 +178,18 @@
             myWindow.document.close();*/
         }
 
+        function clickPictures(albumID) {
+            alert("inside click pictures :"+albumID);
+            if (document.getElementById(albumID).style.display == 'block')
+            {
+                document.getElementById(albumID).style.display = 'none';
+            }
+            else
+            {
+                document.getElementById(albumID).style.display = 'block'
+            }
+        }
+
     </script>
 </head>
 
@@ -261,13 +273,14 @@ catch (Facebook\Exceptions\FacebookSDKException $e) {
 }
 
 if($stype == "Place"){
+    if($loc != "") {
+        $geocode = file_get_contents('https://maps.google.com/maps/api/geocode/json?address=' . $loc . '&key=AIzaSyATALr9OOELhJSknaV4uZ8q0qt5vNCWwKI');
+        $output = json_decode($geocode);
+        if ($output->status == "OK") {
 
-    $geocode = file_get_contents('http://maps.google.com/maps/api/geocode/json?address=' . $loc . '&key=AIzaSyATALr9OOELhJSknaV4uZ8q0qt5vNCWwKI');
-    $output = json_decode($geocode);
-    if($output->status == "OK"){
-
-        $lat = $output->results[0]->geometry->location->lat;
-        $long = $output->results[0]->geometry->location->lng;
+            $lat = $output->results[0]->geometry->location->lat;
+            $long = $output->results[0]->geometry->location->lng;
+        }
     }
 }
 
@@ -293,15 +306,17 @@ try {
             }
             else if($stype == "Place")
             {
-                if($lat && $long && $dis) {
-                    $response = $fb->get('/search?q=' . $name . '&type=' . $stype . '&center=' . $lat . ',' . $long . '$distance' . $dis . '&fields=id,name,picture.width(700).height(700),place');
+
+                if($lat!="" && $long!="" && $dis!="") {
+                    //$response =  $fb->get('/search?q='.$name.'&type='.$stype.'&center='.$lat.','.$long.'&distance='.$dis.'&fields=id,name,picture.width(700).height(700)');
+                    $response = $fb->get('/search?q='.$name.'&type='.$stype.'&center=' .$lat.','.$long.'&distance='.$dis.'&fields=id,name,picture.width(700).height(700)');
                 }
-                else if($lat && $long)
+                else if($lat!="" && $long!="")
                 {
-                    $response = $fb->get('/search?q=' . $name . '&type=' . $stype . '&center=' . $lat . ',' . $long . '&fields=id,name,picture.width(700).height(700),place');
+                    $response = $fb->get('/search?q=' . $name . '&type=' . $stype . '&center=' . $lat . ',' . $long . '&fields=id,name,picture.width(700).height(700)');
                 }
                 else {
-                    $response = $fb->get('/search?q=' . $name . '&type=' . $stype . '&fields=id,name,picture.width(700).height(700),place');
+                    $response = $fb->get('/search?q=' . $name . '&type=' . $stype . '&fields=id,name,picture.width(700).height(700)');
                 }
             }
             else{
@@ -314,6 +329,7 @@ try {
         catch (Facebook\Exceptions\FacebookSDKException $e) {
             echo 'Facebook SDK returned an error: ' . $e->getMessage();
         }
+
         $search = $response->getGraphEdge()->asArray();
         if (!$search) {
             echo '<p style="border: 0.1px white; background-color: lightgray; text-align: center; width: 100%;"> No Records has been found </p>';
@@ -383,11 +399,14 @@ e, picture}},posts.limit(5)');
             echo '<table>';
             //foreach ($search as $key) {
             $albumData = $search['albums'];
-            foreach ($albumData as $data) {
 
-                echo '<tr colspan="2"><td>' . $data['name'] . '</td></tr>';
+            foreach ($albumData as $data) {
+                if(isset($data['id'])) {
+                    $albumID = '\'' . $data['id'] .'\'';;
+                }
+                echo '<tr colspan="2"><td><a href="#" style="color: blue" onclick="clickPictures('. $albumID.')">' . $data['name'] . '</a></td></tr>';
                 $albumPhoto = $data['photos'];
-                echo '<tr><td>';
+                echo '<tr><td id='.$albumID. ' style="display: none;">';
                 foreach ($albumPhoto as $photo) {
                     try {
                         $urlResponse = $fb->get('/' . $photo['id'] . '/picture?redirect=false');
@@ -397,7 +416,6 @@ e, picture}},posts.limit(5)');
                         echo 'Facebook SDK returned an error: ' . $e->getMessage();
                     }
                     $urlResult = $urlResponse->getGraphNode()->asArray();
-                    var_dump($urlResult);
                     if(isset($urlResult['url'])) {
                         $urlResult1 = '\'' . $urlResult['url'] . '\'';
                     }
