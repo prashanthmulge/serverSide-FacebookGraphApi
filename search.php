@@ -31,7 +31,7 @@
             padding-bottom: 0.625em;
             padding-left: 0.75em;
             padding-right: 0.75em;
-            background-color: lightgrey;
+            background-color: #e3e3e3;
 
         }
         .headline {
@@ -58,16 +58,16 @@
             border-collapse: collapse;
 
         }
-        th,td {
+        th,td,tr {
 
             border: 1px solid black;
             border-collapse: collapse;
         }
         th {
-             background-color: darkgrey;
+             background-color: lightgrey;
         }
         td {
-            background-color: lightgrey;
+            background-color: #f3f3f3;
         }
     </style>
     <script type="text/javascript">
@@ -115,12 +115,12 @@
             //document.getElementById("formValue").value = "anchorSubmit";
 
             document.getElementById("formValue").value = id;
-            alert("i am here " + document.getElementById("formValue").value + "ID:" + id);
+            //alert("i am here " + document.getElementById("formValue").value + "ID:" + id);
             //formSubmit();       //Manual because .submit() won't trigger form submit event!
             document.getElementById("submitForm").submit();
         }
         function formSubmit() {
-            alert("Submitted");
+//            alert("Submitted");
             document.getElementById("formValue").value = "formSubmit";
             return true;
         }
@@ -136,7 +136,7 @@
         function postClick() {
             if (document.getElementById("post").style.display == 'none')
             {
-                if (document.getElementById("album").style.display == 'inline')
+                if (document.getElementById("album") && document.getElementById("album").style.display == 'inline')
                 {
                     document.getElementById("album").style.display = 'none';
                 }
@@ -151,7 +151,7 @@
         function albumClick() {
             if (document.getElementById("album").style.display == 'none')
             {
-                if (document.getElementById("post").style.display == 'inline')
+                if (document.getElementById("post") && document.getElementById("post").style.display == 'inline')
                 {
                     document.getElementById("post").style.display = 'none';
                 }
@@ -179,7 +179,7 @@
         }
 
         function clickPictures(albumID) {
-            alert("inside click pictures :"+albumID);
+//            alert("inside click pictures :"+albumID);
             if (document.getElementById(albumID).style.display == 'block')
             {
                 document.getElementById(albumID).style.display = 'none';
@@ -286,7 +286,8 @@ if($stype == "Place"){
 
 echo '<script> setPlaces(); </script>';
 ?>
-
+<br>
+<br>
 <div id="result" style="display: none">
 
 <?php
@@ -294,8 +295,6 @@ echo '<script> setPlaces(); </script>';
 if (isset($_POST["formValue"])) {
     echo '<script> setPlaces(); </script>';
     echo '<script> setResult(); </script>';
-    echo $name, $stype;
-
 
 try {
     //$response = $fb->sendRequest('GET', '/search', array('q' => $_POST['name'], 'type' => $_POST['stype'], 'field' => 'id,name,picture.width(700).height(700)'));
@@ -357,7 +356,7 @@ try {
                 echo '<td>' . $key['name'] . '</td>';
                 //echo "<script> document.getElementById('formValue').value = $image; </script>";
                 if($stype != "Event") {
-                    echo '<td>' . '<a href="javascript:checkDetails(' . $id1 . ')" > details</a>' . '</td>';
+                    echo '<td>' . '<a href="javascript:checkDetails(' . $id1 . ')" > Details</a>' . '</td>';
                 }
                 else {
                     if(isset($key['place'])) {
@@ -394,50 +393,58 @@ e, picture}},posts.limit(5)');
         if (!$isAlbum) {
             echo '<p style="border: 0.1px white; background-color: lightgray; text-align: center; width: 100%;"> No Albums has been found </p>';
         } else {
-            echo '<input type="button" onclick="albumClick()" value="Albums" style="width: 100%">';
+            echo '<p style="width: 100%; background-color: #e3e3e3; text-align: center"><a  style="color: blue" onclick="albumClick()" href="#"> '.'Albums'.'</a></p>';
+//            echo '<input type="button" onclick="albumClick()" value="Albums" style="width: 100%">';
+            echo '<br>';
+
             echo '<div id="album" style="display: none; ">';
             echo '<table>';
             //foreach ($search as $key) {
             $albumData = $search['albums'];
-
             foreach ($albumData as $data) {
+                $albumID = "";
                 if(isset($data['id'])) {
                     $albumID = '\'' . $data['id'] .'\'';;
                 }
-                echo '<tr colspan="2"><td><a href="#" style="color: blue" onclick="clickPictures('. $albumID.')">' . $data['name'] . '</a></td></tr>';
-                $albumPhoto = $data['photos'];
-                echo '<tr><td id='.$albumID. ' style="display: none;">';
-                foreach ($albumPhoto as $photo) {
-                    try {
-                        $urlResponse = $fb->get('/' . $photo['id'] . '/picture?redirect=false');
-                    } catch (Facebook\Exceptions\FacebookResponseException $e) {
-                        echo 'Graph return an error: ' . $e->getMessage();
-                    } catch (Facebook\Exceptions\FacebookSDKException $e) {
-                        echo 'Facebook SDK returned an error: ' . $e->getMessage();
+                if(isset($data['photos'])) {
+                    echo '<tr colspan="2"><td><a href="#" style="color: blue" onclick="clickPictures(' . $albumID . ')">' . $data['name'] . '</a></td></tr>';
+                    $albumPhoto = $data['photos'];
+                    echo '<tr><td id='.$albumID. ' style="display: none;">';
+                    foreach ($albumPhoto as $photo) {
+                        try {
+                            $urlResponse = $fb->get('/' . $photo['id'] . '/picture?redirect=false');
+                        } catch (Facebook\Exceptions\FacebookResponseException $e) {
+                            echo 'Graph return an error: ' . $e->getMessage();
+                        } catch (Facebook\Exceptions\FacebookSDKException $e) {
+                            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+                        }
+                        $urlResult = $urlResponse->getGraphNode()->asArray();
+                        if (isset($urlResult['url'])) {
+                            $urlResult1 = '\'' . $urlResult['url'] . '\'';
+                        } else {
+                            $urlResult1 = '\'' . $photo['picture'] . '\'';
+                        }
+                        echo '<img src=' . $photo['picture'] . ' width="30px" height="40px" onclick="getHDImage(' . $urlResult1 . ')">';
+                        echo "  ";
                     }
-                    $urlResult = $urlResponse->getGraphNode()->asArray();
-                    if(isset($urlResult['url'])) {
-                        $urlResult1 = '\'' . $urlResult['url'] . '\'';
-                    }
-                    else{
-                        $urlResult1 = '\'' . $photo['picture'] .'\'';
-                    }
-                    echo '<img src=' . $photo['picture'] . ' width="30px" height="40px" onclick="getHDImage('. $urlResult1.')">';
-                    echo " ";
+                } else {
+                    echo '<tr colspan="2"><td>'. $data['name'] . '</td></tr>';
                 }
+
                 echo '</td></tr>';
 
             }
             echo '</table>';
             echo '</div>';
         }
-        echo '<br>';
-        echo '<br>';
 
         if (!$isPost) {
             echo '<p style="border: 0.1px white; background-color: lightgray; text-align: center; width: 100%;"> No Posts has been found </p>';
         } else {
-            echo '<input type="button" onclick="postClick()" value="Posts" style="width: 100%;">';
+            echo '<p style="width: 100%; background-color: #e3e3e3; text-align: center"><a  style="color: blue" onclick="postClick()" href="#"> '.'Posts'.'</a></p>';
+            //echo '<input type="button" onclick="postClick()" value="Posts" style="width: 100%;">';
+            echo '<br>';
+
             echo '<div id="post" style="display: none; ">';
             echo '<table>';
             $albumData = $search['posts'];
