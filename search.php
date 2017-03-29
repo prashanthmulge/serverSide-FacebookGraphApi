@@ -113,15 +113,10 @@
         }
         function checkDetails(id)
         {
-            //document.getElementById("formValue").value = "anchorSubmit";
-
             document.getElementById("formValue").value = id;
-            //alert("i am here " + document.getElementById("formValue").value + "ID:" + id);
-            //formSubmit();       //Manual because .submit() won't trigger form submit event!
             document.getElementById("submitForm").submit();
         }
         function formSubmit() {
-//            alert("Submitted");
             document.getElementById("formValue").value = "formSubmit";
             return true;
         }
@@ -165,27 +160,18 @@
         }
 
         function getHDImage(photoUrl) {
-            //TODO: Make it on left not centre
-
             var text = '<!DOCTYPE html><html><body><div><img src =' + photoUrl + ' Stretch="None"></div></body></html>';
-            //alert('uri is ' + photoUrl + "text is : " + text);
             var newWind = window.open("");
             newWind.document.write(text);
             newWind.document.close();
-
-            /*var img = '<!DOCTYPE html><html><head><title>image</title></head><body><p><img src =' + photoUrl + ' Stretch="None"></p></body></html>';
-            myWindow = window.open("");
-            myWindow.document.write(img);
-            myWindow.document.close();*/
         }
 
         function clickPictures(albumID) {
-//            alert("inside click pictures :"+albumID);
-            if (document.getElementById(albumID).style.display == 'block')
+            if (document.getElementById(albumID) && document.getElementById(albumID).style.display == 'block')
             {
                 document.getElementById(albumID).style.display = 'none';
             }
-            else
+            else if(document.getElementById(albumID))
             {
                 document.getElementById(albumID).style.display = 'block'
             }
@@ -217,7 +203,7 @@ function test_input($data)
 if (isset($_POST["formValue"])) {
     $name = test_input($_POST["name"]);
     $stype = test_input($_POST["stype"]);
-    $loc = test_input($_POST["location"]);
+    $loc = urlencode(test_input($_POST["location"]));
     $dis = test_input($_POST["distance"]);
 }
 ?>
@@ -241,7 +227,7 @@ if (isset($_POST["formValue"])) {
         <p id="p_location">Location:</p>
         <input id="location" type="text" name="location" value="<?php echo isset($_POST['location'])?  $loc : "";?>">
         <p id="p_distance">Distance(meters):</p>
-        <input id="distance" type="text" name="distance" value="<?php echo isset($_POST['distance'])?  $dis : "";?>">
+        <input id="distance" type="number" name="distance" value="<?php echo isset($_POST['distance'])?  $dis : "";?>">
         <br>
         <br>
         <input name="formValue" id="formValue" type="text" value="submit" hidden>
@@ -258,7 +244,6 @@ $fb = new Facebook\Facebook([
     'app_secret' => 'd4c30bf9fb90d0e270537ea15a166c9a',
     'default_graph_version' => 'v2.5'
 ]);
-
 
 $fb->setDefaultAccessToken('EAAHPpCEZCD00BABeWSZAPPhNAjg1ZCnUlIj1UKd3dZAZCYZCqaivdb9NvhwiOZCI9mUa6nUe57UxUpH5YDGIt2Dhq5Pziop6QdlWneW3hh8aXk9lZCB9MTFnZB2AAugnZA9iuc0LatynUiz1RYeLZBKdlLZC');
 
